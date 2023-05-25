@@ -7,16 +7,19 @@ import {
   TxHash,
   Address,
   Unit,
-  Assets
+  Assets,
+  NFTMetadataDetails,
 } from "https://deno.land/x/lucid/mod.ts";
 
 // const lucid = await Lucid.new();
 import { secretSeed } from "./seed.ts";
 
-/*
-    MintSimpleNFT Example
-    Mint or burn a simple NFT.
-   */
+// Define the metadata details
+const metadata: NFTMetadataDetails = {
+  name: "My NFT",
+  description: "This is my NFT",
+  image: "ipfs://QmRzicpReutwCkM6aotuKjErFCUD213DpwPq6ByuzMJaua",
+};
 
 const lucid = await Lucid.new(
   new Blockfrost(
@@ -29,10 +32,6 @@ const lucid = await Lucid.new(
 lucid.selectWalletFromSeed(secretSeed);
 const addr: Address = await lucid.wallet.address();
 console.log(addr, "this is address");
-
-// const api = await window.cardano.nami.enable();
-// // Assumes you are in a browser environment
-// lucid.selectWallet(api);
 
 const { paymentCredential } = lucid.utils.getAddressDetails(
   await lucid.wallet.address()
@@ -52,7 +51,7 @@ const mintingPolicy: MintingPolicy = lucid.utils.nativeScriptFromJson({
 const policyId: PolicyId = lucid.utils.mintingPolicyToId(mintingPolicy);
 console.log(policyId, "my policy id");
 
-export async function mintNFT(name: string): Promise<TxHash> {
+async function mintNFT(name: string): Promise<TxHash> {
   const unit: Unit = policyId + fromText(name);
 
   const tx = await lucid
@@ -69,56 +68,45 @@ export async function mintNFT(name: string): Promise<TxHash> {
   return txHash;
 }
 
-// const policyId: PolicyId = "a4d8bf12129d40b44ce273a0370cd3b7cb834bd8db8cc6381e83f695"
-
-
 // to check nft minted or not
-const isMinted = await mintNFT("rest-api");
+const isMinted = await mintNFT("MY_nft");
 console.log(isMinted ? "NFT has been minted" : "NFT has not been minted");
 
+// const policyId: PolicyId = "a4d8bf12129d40b44ce273a0370cd3b7cb834bd8db8cc6381e83f695"
 // // get wallet balance
 // const utxos = await lucid.wallet.getUtxos();
 // console.log(`Wallet balance: ${utxos} lovelaces`);
 
-
-
-
 // Get the wallet UTxo
-
-
 
 // const balance = await lucid.wallet.getUtxos();
 // console.log("-------------------------------")
 // console.log(balance,"+++++++")
 
-
 // const assets = await lucid.wallet.Assets();
 // console.log(assets);
-
 
 // get transaction history
 // const txHistory = await lucid.wallet.getTxHistory();
 // console.log(txHistory,"Transaction history");
 
+// export async function burnNFT(name: string): Promise<TxHash> {
+//   const unit: Unit = policyId + fromText(name);
 
-export async function burnNFT(name: string): Promise<TxHash> {
-  const unit: Unit = policyId + fromText(name);
+//   const tx = await lucid
+//     .newTx()
+//     .mintAssets({ [unit]: -1n })
+//     .validTo(Date.now() + 100000)
+//     .attachMintingPolicy(mintingPolicy)
+//     .complete();
 
-  const tx = await lucid
-    .newTx()
-    .mintAssets({ [unit]: -1n })
-    .validTo(Date.now() + 100000)
-    .attachMintingPolicy(mintingPolicy)
-    .complete();
+//   const signedTx = await tx.sign().complete();
 
-  const signedTx = await tx.sign().complete();
+//   const txHash = await signedTx.submit();
 
-  const txHash = await signedTx.submit();
-
-  return txHash;
-}
+//   return txHash;
+// }
 // const isBurned = await burnNFT("MyNFT");
 // console.log(isBurned ? "NFT has been burned" : "NFT has not been burned");
 
-
-module.exports = mintNFT, burnNFT
+// (module.exports = mintNFT), burnNFT;
